@@ -1,5 +1,6 @@
 assume cs:code
 
+
 code segment
 	mov ax, 0ffffH
 	mov ds, ax
