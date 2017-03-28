@@ -1,4 +1,4 @@
-assume cs:code, ss:stack
+assume cs:code, ds:table, ss:stack, es:data
 
 data segment
 	db '1975', '1976', '1977', '1978', '1979', '1980', '1981', '1982', '1983', '1984', '1985', '1986', '1987', '1988', '1989', '1990', '1991', '1992', '1993', '1994', '1995'
@@ -24,53 +24,50 @@ stack ends
 code segment
 	start:
 		mov ax, table
-		mov ds, ax
+		mov ds, ax								;设置存放数据的table段
 
 		mov ax, data
-		mov es, ax
+		mov es, ax								;设置取数据的data段
 
 		mov ax, stack
 		mov ss, ax
-		mov sp, 16
+		mov sp, 16 								;设置临时存放数据的栈段
 
-		mov bx, 0
-		mov bp, 0
-		mov di, 0
+		mov bx, 0								;table的行的初始地址
+		mov bp, 0								
+		mov di, 0								
 
 		mov cx,21
 		s0:
 			push cx
 			mov cx, 2
 			mov si, 0
-			s1:										;将年份输入到table中
-				mov ax, es:[bp].0[si]
-				mov [bx].0[si], ax
+			s1:									;将年份输入到table中
+				push es:[bp].0[si]
+				pop [bx].0[si]
 				add si, 2
 			loop s1
-
-			add si, 2
-			mov byte ptr [bx].0[si], ' '			;输出空格
+			mov byte ptr [bx].0[si], ' '		;输出空格
 
 			mov cx, 2
 			mov si, 0
 			s2:
-				mov ax, es:[bp].84[si]
-				mov [bx].5[si], ax
+				push es:[bp].84[si]
+				pop [bx].5[si]
 				add si, 2
-			loop s2 								;将收入输入到table中
+			loop s2 							;将收入输入到table中
 
-			add si, 2
-			mov byte ptr [bx].5[si], ' '			;输出空格
+			mov byte ptr [bx].5[si], ' '		;输出空格
 
-			mov ax, es:[di].168
-			mov word ptr [bx].10, ax				;将雇员数输入到table中
-			mov byte ptr [bx].12, ' '				;输出空格
+			push es:[di].168
+			pop word ptr [bx].10				;将雇员数输入到table中
+			mov byte ptr [bx].12, ' '			;输出空格
 
 			mov ax, [bx].5[0]
 			mov dx, [bx].5[2]
-			div word ptr [bx].10 					;计算人均收入
-			mov word ptr [bx].13, ax				;将人均收入输入到table中
-			mov byte ptr [bx].15, ' ' 				;输出空格
+			div word ptr [bx].10 				;计算人均收入
+			mov word ptr [bx].13, ax			;将人均收入输入到table中
+			mov byte ptr [bx].15, ' ' 			;输出空格
 
 			add bx, 16
 			add bp, 4
