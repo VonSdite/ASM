@@ -56,7 +56,6 @@ code segment
 				pop [bx].5[si]
 				add si, 2
 			loop s2 							;将收入输入到table中
-
 			mov byte ptr [bx].5[si], ' '		;输出空格
 
 			push es:[di].168
