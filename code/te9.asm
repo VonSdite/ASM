@@ -9,7 +9,7 @@ data segment
 data ends
 
 stack segment
-    db 8 dup(0)
+    db 16 dup(0)
 stack ends
 
 code segment
