@@ -27,6 +27,7 @@ code segment
 	       int 21h
 
 	divdw:  
+		   push bx	
 	       push ax 				; 将被除数低16位数据L入栈
 
 	       ; 计算int(H/N), 结果保存在bx中
@@ -39,6 +40,7 @@ code segment
 	       div cx 				
 	       mov cx, dx
 	       mov dx, bx
+	       pop bx
 	       ret   			
 code ends
 end start

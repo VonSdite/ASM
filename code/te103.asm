@@ -14,7 +14,7 @@ code segment
 		mov ss, ax
 		mov sp, 40H
 
-		mov ax, 12666
+		mov ax, 65535
 		mov bx, data
 		mov ds, bx
 		mov si, 0
@@ -34,37 +34,54 @@ code segment
 		push bx
 		push dx
 		push di
-		mov bx, 10
 	change:
+		mov cx, 10
 		mov dx, 0
-		div bx 				;每次将值除以10
+		call divdw 			;每次将值除以10
+		push cx
 		mov cx, ax
 		jcxz ok0 			;判断商是否为0，是则停止除以10
-		add dx, 30H
-		push dx  			;由于除以10的结果是低位先出，先压入栈，之后需再逆序
+		pop cx
+		add cx, 30H
+		push cx  			;由于除以10的结果是低位先出，先压入栈，之后需再逆序
 		inc si
 		jmp short change
 	ok0:
-		mov cx, dx
-		jcxz ok1 			;判断商为0时，余数是否为0,否则需要将余数压入栈
-		add dx, 30H
-		push dx
+		pop cx
+		add cx, 30H
+		push cx
 		inc si
-		ok1:
-			mov di, 0 		
-			mov cx, si
-			s:
-				pop ax
-				mov ds:[di], al
-				inc di
-			loop s
-			mov byte ptr ds:[si], 0 	;设置字符串结尾符
-			pop di
-			pop dx
-			pop bx
-			pop cx
-			pop si
-			ret
+		mov di, 0 		
+		mov cx, si
+		s:
+			pop ax
+			mov ds:[di], al
+			inc di
+		loop s
+		mov byte ptr ds:[si], 0 	;设置字符串结尾符
+		pop di
+		pop dx
+		pop bx
+		pop cx
+		pop si
+		ret
+
+	divdw:  
+		push bx	
+	    push ax 			; 将被除数低16位数据L入栈
+
+	    ; 计算int(H/N), 结果保存在bx中
+	    mov ax, dx
+	    mov dx, 0
+	    div cx
+	    mov bx, ax
+
+	    pop ax
+	    div cx 				
+	    mov cx, dx
+	    mov dx, bx
+	    pop bx
+	    ret
 
 	show_str:
 		push ax
