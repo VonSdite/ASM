@@ -30,18 +30,19 @@ da ends
 ;******************
 code segment
 	main:
-		mov ax, stack 			;设置栈段
-		mov ss, ax
-		mov sp, 100H
+		call init
+		; mov ax, stack 			;设置栈段
+		; mov ss, ax
+		; mov sp, 100H
 
-		mov ax, data 			;设置数据段
-		mov ds, ax
+		; mov ax, data 			;设置数据段
+		; mov ds, ax
 
-		mov ax, 0B828H 			;设置显存位置
-		mov es, ax
+		; mov ax, 0B828H 			;设置显存位置
+		; mov es, ax
 		
-		mov bp, 8 				;设置每行显示开始在第5列				
-		mov bx, 0 				
+		; mov bp, 8 				;设置每行显示开始在第5列				
+		; mov bx, 0 				
 
 		mov cx, 21 				;共21行
 		s0:
@@ -58,6 +59,20 @@ code segment
 ;******************
 ;  定义的函数	  *
 ;******************
+init:
+	mov ax, stack 			;设置栈段
+		mov ss, ax
+		mov sp, 100H
+
+		mov ax, data 			;设置数据段
+		mov ds, ax
+
+		mov ax, 0B828H 			;设置显存位置
+		mov es, ax
+		
+		mov bp, 8 				;设置每行显示开始在第5列				
+		mov bx, 0 		
+	ret
 space:
 	push cx
 	mov cx, 4
