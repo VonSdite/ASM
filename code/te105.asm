@@ -30,26 +30,22 @@ da ends
 ;******************
 code segment
 	main:
-		call init
-		; mov ax, stack 			;设置栈段
-		; mov ss, ax
-		; mov sp, 100H
-
-		; mov ax, data 			;设置数据段
-		; mov ds, ax
-
-		; mov ax, 0B828H 			;设置显存位置
-		; mov es, ax
-		
-		; mov bp, 8 				;设置每行显示开始在第5列				
-		; mov bx, 0 				
+		mov ax, stack 			;设置栈段
+		mov ss, ax
+		mov sp, 0FEH
+		; 使用call和ret要提前设置好栈段
+		; 若是在init中设置栈段， init还被执行两次
+		; 并且栈底指针设置为栈的长度倒数第二个位置
+		; 具体原因考虑 call 和 ret的实现过程
+		call init			
 
 		mov cx, 21 				;共21行
 		s0:
 			push cx
 			call printf
 			add bp, 0A0H 		;下一行
-			add bx, 4 			
+			add bx, 4 	
+			add si, 2	
 			pop cx
 		loop s0
 
@@ -60,22 +56,20 @@ code segment
 ;  定义的函数	  *
 ;******************
 init:
-	mov ax, stack 			;设置栈段
-		mov ss, ax
-		mov sp, 100H
+	mov ax, data 			;设置数据段
+	mov ds, ax
 
-		mov ax, data 			;设置数据段
-		mov ds, ax
-
-		mov ax, 0B828H 			;设置显存位置
-		mov es, ax
+	mov ax, 0B828H 			;设置显存位置
+	mov es, ax
 		
-		mov bp, 8 				;设置每行显示开始在第5列				
-		mov bx, 0 		
+	mov bp, 8 				;设置每行显示开始在第5列				
+	mov bx, 0 		
+	mov si, 0
 	ret
+
 space:
 	push cx
-	mov cx, 4
+	mov cx, 8
 	blank:
 		mov word ptr es:[bp], 20H
 		add bp, 2
@@ -85,6 +79,9 @@ space:
 
 printf:
 	push bp
+
+	call space  			; 让输出居中一点
+	
 	mov di, 0
 	mov ah, 2 				;显示的颜色属性
 
@@ -106,6 +103,26 @@ printf:
 	call dtoc
 	call show_str
 
+	; 分隔
+	call space
+
+	; 公司雇员数
+	mov ax, ds:[si].168
+	mov dx, 0
+	call dtoc
+	call show_str
+
+	; 分隔
+	call space
+
+	; 人均收入
+	mov ax, ds:[bx].84
+	mov dx, ds:[bx].86
+	mov cx, ds:[si].168
+	call divdw
+	call dtoc
+	call show_str
+
 	pop bp
 	ret
 
@@ -122,6 +139,7 @@ dtoc:
 	push bx
 	mov bx, da
 	mov ds, bx
+	mov si, 0
 	mov word ptr ds:[0], 0
 	mov word ptr ds:[2], 0
 change: 	; 用于十进制数转换为字符串
@@ -215,11 +233,14 @@ show_str:
 		add bp, 2
 	jmp short print
 	ok: 
-		mov ax, 14
+		; 最长的数字串为7位，si是记录已输出的字符串长度
+		; ax与si做差之后差值用空格填充，保证输出格式一致为14位宽度
+		mov ax, 8
 		sub ax, si
 		mov cx, ax
 		s11:
 			mov word ptr es:[bp], 20H
+			add bp, 2
 		loop s11
 		pop ds
 		pop si

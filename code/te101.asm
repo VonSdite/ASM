@@ -35,6 +35,8 @@ code segment
 		push dx
 		push bx
 		push cx
+		push si
+		mov si, 0
 
 		; 设置显存段地址
 		mov ax, 0b800h
@@ -64,6 +66,7 @@ code segment
 			inc bx
 		jmp short print
 		ok: 
+			pop si
 			pop cx
 			pop bx
 			pop dx
