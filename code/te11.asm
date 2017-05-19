@@ -20,6 +20,7 @@ code segment
 ; 参数: ds:si指向字符串首地址
 letterc:
 	push cx
+	push si
 	mov ch, 0
 	change:
 		mov cl, ds:[si]
@@ -28,13 +29,13 @@ letterc:
 		jb skip
 		cmp cl, 'z'
 		ja skip
-		and cl, 11011111B
-		mov byte ptr ds:[si], cl
+		and byte ptr ds:[si], 11011111B
 	skip:
 		inc si
 		jmp short change
 
 	ok:
+		pop si
 		pop cx
 		ret
 code ends
