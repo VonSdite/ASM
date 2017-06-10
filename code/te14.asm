@@ -1,8 +1,9 @@
-ASSUME CS:CODE
+ASSUME CS:CODE, DS:DATA
 
 DATA SEGMENT
     DB 9, 8, 7, 4, 2, 0
     ; 分别是 年月日时分秒的位置
+    C DB '/', '/', ' ', ':', ':' 
 DATA ENDS
 
 STACK SEGMENT
@@ -50,30 +51,10 @@ CODE SEGMENT
             MOV ES:[SI+2], AL
             MOV BYTE PTR ES:[SI+3], 2
 
-            ; 判断输出'/', ' ', ':' 三个中哪一个
-            CMP DI, 0
-            JE C1
-            CMP DI, 1
-            JE C1
-            CMP DI, 2
-            JE C2
-            CMP DI, 3
-            JE C3
-            CMP DI, 4
-            JE C3
-            JMP SHORT OK
-            C1:
-                MOV BYTE PTR ES:[SI+4], '/'
-                MOV BYTE PTR ES:[SI+5], 2
-                JMP SHORT OK
-            C2:
-                MOV BYTE PTR ES:[SI+4], ' '
-                MOV BYTE PTR ES:[SI+5], 2
-                JMP SHORT OK
-            C3:
-                MOV BYTE PTR ES:[SI+4], ':'
-                MOV BYTE PTR ES:[SI+5], 2
-                JMP SHORT OK
+            ; 输出'/', ' ', ':' 三个中的一个
+            MOV AL, C[DI]
+            MOV BYTE PTR ES:[SI+4], AL
+            MOV BYTE PTR ES:[SI+5], 2
             OK:
                 ADD SI, 6
                 INC DI

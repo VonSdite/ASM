@@ -10,7 +10,7 @@ CODE SEGMENT
         MOV SS, AX
         MOV SP, 128
 
-        MOV AX, 30
+        MOV AX, 100
         CALL SHOWSIN
 
         MOV AX, 4C00H
@@ -35,11 +35,15 @@ CODE SEGMENT
             PUSH DI
             PUSH AX
 
+            CMP AX, 180
+            JA ERROR
             ; 角度/30作为相对于TABLE的偏移
             ; 取得偏移地址，存放在BX中
             MOV DX, 0
             MOV BX, 30
             DIV BX
+            CMP DX, 0       ; 用于检查角度值是否在范围内
+            JNE ERROR
             MOV BX, AX
             ADD BX, BX
             MOV BX, TABLE[BX]
@@ -58,6 +62,26 @@ CODE SEGMENT
             ADD DI, 2
             INC BX
             JMP SHORT SHOWS
+
+        ERROR:
+            JMP SHORT ERROR_SHOW
+            EE DB 'Error Angle!', 0
+
+            ERROR_SHOW:
+                ; 显示错误角度
+                MOV AX, 0B800H
+                MOV ES, AX
+                MOV DI, 12*160+34*2
+                MOV BX, 0
+                ESS:
+                    CMP BYTE PTR EE[BX], 0
+                    JE SHOWRET
+                    MOV AL, EE[BX]
+                    MOV ES:[DI], AL
+                    MOV BYTE PTR ES:[DI+1], 2
+                    ADD DI, 2
+                    INC BX
+                    JMP SHORT ESS
         SHOWRET:
             POP AX
             POP DI
