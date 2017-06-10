@@ -1,3 +1,8 @@
+; 7CH中断例程
+; 参数：
+; (dh)=行号，(dl)=列号，(cl)=颜色。
+; ds：si指向字符串首地址。
+
 ASSUME CS:CODE
 
 CODE SEGMENT

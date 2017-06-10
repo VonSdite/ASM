@@ -1,11 +1,20 @@
 assume cs:code
 
+
 data segment
     db "welcome to masm! ", 0
 data ends
 
+stack segment
+    dw 8 dup(0)
+stack ends
+
 code segment
     start:
+        mov ax, stack
+        mov ss, ax
+        mov sp, 10h
+
         mov dh, 10
         mov dl, 10
         mov cl, 2
