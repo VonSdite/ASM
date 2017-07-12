@@ -10,7 +10,7 @@ CODE SEGMENT
         MOV SS, AX
         MOV SP, 128
 
-        MOV AX, 100
+        MOV AX, 30
         CALL SHOWSIN
 
         MOV AX, 4C00H
@@ -19,12 +19,10 @@ CODE SEGMENT
     ; 用AX向SHOWSIN传递角度
     SHOWSIN:
         JMP SHORT SHOW
-        TABLE DW AG0, AG30, AG60, AG90, AG120, AG150, AG180  ; 字符串偏移地址表
+        TABLE DW AG0, AG30, 0, AG90, 0, AG150, AG180  ; 字符串偏移地址表
         AG0   DB '0', 0                ; sin(0)对应的字符串"0"
         AG30  DB '0.5', 0              ; sin(30)对应的字符串"0.5"                
-        AG60  DB '0.866', 0            ; sin(60)对应的字符串"0.866"    
         AG90  DB '1', 0                ; sin(90)对应的字符串"1"
-        AG120 DB '0.866', 0            ; sin(120)对应的字符串"0.866"    
         AG150 DB '0.5', 0              ; sin(150)对应的字符串"0.5"    
         AG180 DB '0', 0                ; sin(180)对应的字符串"0"
 
@@ -39,6 +37,7 @@ CODE SEGMENT
             JA ERROR
             ; 角度/30作为相对于TABLE的偏移
             ; 取得偏移地址，存放在BX中
+            ; 由于除以30，其中60，与120不在范围内，设置偏移地址为0，用于判断
             MOV DX, 0
             MOV BX, 30
             DIV BX
@@ -47,6 +46,9 @@ CODE SEGMENT
             MOV BX, AX
             ADD BX, BX
             MOV BX, TABLE[BX]
+
+            CMP BX, 0
+            JE ERROR
 
             ; 显示SIN(X)对应的字符串
             MOV AX, 0B800H
